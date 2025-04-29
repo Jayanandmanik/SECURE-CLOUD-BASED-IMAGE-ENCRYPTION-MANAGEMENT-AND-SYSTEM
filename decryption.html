@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Decryption</title>
+    <link rel="icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/512/1813/1813797.png">
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        /* Container Styles */
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(15px);
+            width: 400px;
+            text-align: center;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Heading Styles */
+        h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            }
+        }
+
+        /* Input and Button Styles */
+        input[type="file"], input[type="text"], button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"], input[type="text"] {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        input[type="file"]:hover, input[type="text"]:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        button {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #2575fc, #6a11cb);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Result Section Styles */
+        .result {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Image Styles */
+        img {
+            max-width: 200px;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        img:hover {
+            transform: scale(1.05);
+        }
+
+        /* Background Animation */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+            animation: rotateBackground 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotateBackground {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            input[type="file"], input[type="text"], button {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Decryption</h1>
+        <input type="file" id="decryptFile" accept="image/png, image/jpeg">
+        <input type="text" id="decryptKey" placeholder="Enter Encryption Key">
+        <input type="text" id="decryptIV" placeholder="Enter Initialization Vector (IV)">
+        <button onclick="validateAndDecryptImage()">Decrypt Image</button>
+        <div class="result" id="decryptResult"></div>
+        <img id="decryptedUploadedImage" alt="Uploaded Encrypted Image" style="display: none;">
+        <img id="decryptedImage" alt="Decrypted Image" style="display: none;">
+    </div>
+
+    <script>
+        // Function to validate and decrypt an image
+        async function validateAndDecryptImage() {
+            const fileInput = document.getElementById('decryptFile');
+            const file = fileInput.files[0];
+            const key = document.getElementById('decryptKey').value.trim();
+            const iv = document.getElementById('decryptIV').value.trim();
+
+            if (!file || !key || !iv) {
+                alert("Please fill all fields for decryption.");
+                return;
+            }
+
+            // Validate file type
+            if (!['image/png', 'image/jpeg'].includes(file.type)) {
+                alert("Please select a valid image format (PNG or JPG).");
+                return;
+            }
+
+            // Validate file size (250 KB = 250 * 1024 bytes)
+            if (file.size > 250 * 1024) {
+                alert("Please select an image below 250 KB.");
+                return;
+            }
+
+            // Display uploaded encrypted image
+            const decryptedUploadedImage = document.getElementById('decryptedUploadedImage');
+            decryptedUploadedImage.src = URL.createObjectURL(file);
+            decryptedUploadedImage.style.display = 'block';
+
+            // Decrypt the image
+            try {
+                const decryptedImage = await decryptImage(file, key, iv);
+                if (decryptedImage) {
+                    document.getElementById('decryptedImage').src = decryptedImage;
+                    document.getElementById('decryptedImage').style.display = 'block';
+                    document.getElementById('decryptResult').innerHTML = "Image decrypted successfully!";
+                } else {
+                    document.getElementById('decryptResult').innerHTML = "Decryption failed. Please check the key and IV.";
+                }
+            } catch (error) {
+                console.error("Error decrypting image:", error);
+                document.getElementById('decryptResult').innerHTML = "An error occurred while decrypting the image.";
+            }
+        }
+
+        // Function to decrypt an image using Web Crypto API
+        async function decryptImage(file, key, iv) {
+            const arrayBuffer = await file.arrayBuffer();
+
+            // Convert key and IV from hex strings to Uint8Array
+            const keyArray = hexStringToUint8Array(key);
+            const ivArray = hexStringToUint8Array(iv);
+
+            // Import the key
+            const importedKey = await crypto.subtle.importKey(
+                "raw",
+                keyArray,
+                { name: "AES-GCM", length: 256 },
+                false,
+                ["decrypt"]
+            );
+
+            // Decrypt the data
+            const decrypted = await crypto.subtle.decrypt(
+                { name: "AES-GCM", iv: ivArray },
+                importedKey,
+                arrayBuffer
+            );
+
+            // Convert decrypted data to a Blob
+            const decryptedBlob = new Blob([decrypted], { type: file.type });
+            return URL.createObjectURL(decryptedBlob);
+        }
+
+        // Function to convert a hex string to Uint8Array
+        function hexStringToUint8Array(hexString) {
+            if (hexString.length % 2 !== 0) {
+                throw new Error("Invalid hex string length.");
+            }
+            const array = new Uint8Array(hexString.length / 2);
+            for (let i = 0; i < hexString.length; i += 2) {
+                array[i / 2] = parseInt(hexString.substr(i, 2), 16);
+            }
+            return array;
+        }
+    </script>
+</body>
+</html>

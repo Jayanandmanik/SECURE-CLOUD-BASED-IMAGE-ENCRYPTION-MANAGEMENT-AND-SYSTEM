@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share Encrypted Data</title>
+    <style>
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #2c3e50);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        /* Container Styles */
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+            width: 400px;
+            text-align: center;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Heading Styles */
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #00ff88;
+            text-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88;
+            }
+            to {
+                text-shadow: 0 0 20px #00ff88, 0 0 30px #00ff88;
+            }
+        }
+
+        /* Input and Button Styles */
+        input[type="file"], input[type="text"], button {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"] {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 2px solid #00ff88;
+        }
+
+        input[type="text"] {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 2px solid #00ff88;
+        }
+
+        input[type="file"]:hover, input[type="text"]:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        button {
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            color: #1a1a1a;
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #00cc66, #00ff88);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #00ff88;
+        }
+
+        /* Result Section Styles */
+        .result {
+            margin-top: 20px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .result a {
+            color: #00ff88;
+            text-decoration: none;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00ff88;
+        }
+
+        .result a:hover {
+            text-decoration: underline;
+        }
+
+        /* Background Animation */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.1), transparent);
+            animation: rotateBackground 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotateBackground {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Particle Animation */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .particles span {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88;
+            animation: float 5s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateY(-100vh) translateX(100vw);
+                opacity: 0.2;
+            }
+            100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0.8;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle Animation -->
+    <div class="particles">
+        <span style="top: 10%; left: 20%; animation-delay: 0s;"></span>
+        <span style="top: 30%; left: 50%; animation-delay: 2s;"></span>
+        <span style="top: 70%; left: 80%; animation-delay: 4s;"></span>
+        <span style="top: 50%; left: 10%; animation-delay: 1s;"></span>
+        <span style="top: 90%; left: 40%; animation-delay: 3s;"></span>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <h1>Share Encrypted Data</h1>
+        <form id="shareForm">
+            <input type="file" id="encryptedImage" name="encryptedImage" accept="image/png, image/jpeg">
+            <input type="text" id="key" name="key" placeholder="Enter Key (Hex)">
+            <input type="text" id="iv" name="iv" placeholder="Enter IV (Hex)">
+            <button type="submit">Generate Share Link</button>
+        </form>
+        <div class="result" id="shareResult"></div>
+    </div>
+
+    <script>
+        document.getElementById('shareForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const fileInput = document.getElementById('encryptedImage');
+            const file = fileInput.files[0];
+            const key = document.getElementById('key').value.trim();
+            const iv = document.getElementById('iv').value.trim();
+
+            if (!file || !key || !iv) {
+                alert("Please fill all fields.");
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('encryptedImage', file);
+                formData.append('key', key);
+                formData.append('iv', iv);
+
+                const response = await fetch('/share-encrypted-data', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to generate share link.");
+                }
+
+                const result = await response.json();
+                const shareLink = result.shareLink;
+
+                // Display the shareable link
+                document.getElementById('shareResult').innerHTML = `
+                    <p>Share this link with your friend:</p>
+                    <a href="${shareLink}" target="_blank">${shareLink}</a>
+                `;
+            } catch (error) {
+                console.error("Error sharing encrypted data:", error);
+                document.getElementById('shareResult').innerText = "An error occurred while generating the share link.";
+            }
+        });
+    </script>
+</body>
+</html>

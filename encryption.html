@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Encryption</title>
+    <link rel="icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/512/1813/1813797.png">
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #2c3e50);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        /* Container Styles */
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+            width: 400px;
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Heading Styles */
+        h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: 700;
+            color: #00ff88;
+            text-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88;
+            }
+            to {
+                text-shadow: 0 0 20px #00ff88, 0 0 30px #00ff88;
+            }
+        }
+
+        /* Input and Button Styles */
+        input[type="file"], button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"] {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        input[type="file"]:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        button {
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            color: #1a1a1a;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #00cc66, #00ff88);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.4);
+        }
+
+        /* Result Section Styles */
+        .result {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Image Styles */
+        img {
+            max-width: 200px;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 255, 136, 0.5);
+        }
+
+        /* Key and IV Display */
+        .key-iv-container {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: left;
+            position: relative;
+        }
+
+        .key-iv-container label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #00ff88;
+        }
+
+        .key-iv-container input {
+            width: calc(100% - 40px);
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-family: monospace;
+        }
+
+        .key-iv-container .toggle-visibility {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #00ff88;
+        }
+
+        .key-iv-container .toggle-visibility:hover {
+            color: #00cc66;
+        }
+
+        /* Background Animation */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.1), transparent);
+            animation: rotateBackground 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotateBackground {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            input[type="file"], button {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="container">
+        <h1>Image Encryption</h1>
+        <input type="file" id="encryptFile" accept="image/png, image/jpeg">
+        <button onclick="validateAndEncryptImage()">Encrypt Image</button>
+        <div class="result" id="encryptResult"></div>
+        <img id="uploadedImage" alt="Uploaded Image" style="display: none;">
+        <img id="encryptedImage" alt="Encrypted Image" style="display: none;">
+        <a id="downloadLink" style="display: none;">Download Encrypted Image</a>
+        <button onclick="redirectToDecryption()" style="margin-top: 20px;">Decrypt the Image</button>
+    </div>
+
+    <!-- Key and IV Display -->
+    <div class="key-iv-container" id="keyIVContainer" style="display: none;">
+        <label for="key">Encryption Key:</label>
+        <div style="position: relative;">
+            <input type="password" id="key" readonly>
+            <span class="toggle-visibility" onclick="toggleVisibility('key')">👁️</span>
+        </div>
+        <label for="iv" style="margin-top: 10px;">Initialization Vector (IV):</label>
+        <div style="position: relative;">
+            <input type="password" id="iv" readonly>
+            <span class="toggle-visibility" onclick="toggleVisibility('iv')">👁️</span>
+        </div>
+    </div>
+
+    <script>
+        // Function to validate and encrypt an image
+        async function validateAndEncryptImage() {
+            const fileInput = document.getElementById('encryptFile');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please select an image to encrypt.");
+                return;
+            }
+
+            // Validate file type
+            if (!['image/png', 'image/jpeg'].includes(file.type)) {
+                alert("Please select a valid image format (PNG or JPG).");
+                return;
+            }
+
+            // Validate file size (250 KB = 250 * 1024 bytes)
+            if (file.size > 250 * 1024) {
+                alert("Please select an image below 250 KB.");
+                return;
+            }
+
+            // Display uploaded image
+            const uploadedImage = document.getElementById('uploadedImage');
+            uploadedImage.src = URL.createObjectURL(file);
+            uploadedImage.style.display = 'block';
+
+            // Encrypt the image
+            const { encryptedUrl, key, iv, encryptedData } = await encryptImage(file);
+            if (encryptedUrl) {
+                document.getElementById('encryptedImage').src = encryptedUrl;
+                document.getElementById('encryptedImage').style.display = 'block';
+                document.getElementById('encryptResult').innerHTML = "Image encrypted successfully!";
+
+                // Provide download link
+                const downloadLink = document.getElementById('downloadLink');
+                downloadLink.href = encryptedUrl;
+                downloadLink.download = `encrypted_${file.name}`;
+                downloadLink.style.display = 'block';
+
+                // Display key and IV
+                document.getElementById('key').value = key;
+                document.getElementById('iv').value = iv;
+                document.getElementById('keyIVContainer').style.display = 'block';
+
+                // Store key and IV in localStorage for decryption page
+                localStorage.setItem('encryptionKey', key);
+                localStorage.setItem('encryptionIV', iv);
+
+                // Send encrypted data to the server
+                await sendEncryptedDataToServer(encryptedData, key, iv, file.name);
+            } else {
+                document.getElementById('encryptResult').innerHTML = "An error occurred while encrypting the image.";
+            }
+        }
+
+        // Function to send encrypted data to the server
+        async function sendEncryptedDataToServer(encryptedData, key, iv, fileName) {
+            try {
+                const response = await fetch('/encrypt-image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        encryptedImage: encryptedData,
+                        key: key,
+                        iv: iv,
+                        fileName: fileName,
+                    }),
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log("Encrypted data saved to database:", result);
+                } else {
+                    console.error("Failed to save encrypted data to database.");
+                }
+            } catch (error) {
+                console.error("Error sending encrypted data to server:", error);
+            }
+        }
+
+        // Function to encrypt an image using Web Crypto API
+        async function encryptImage(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const key = await crypto.subtle.generateKey(
+                { name: "AES-GCM", length: 256 },
+                true,
+                ["encrypt", "decrypt"]
+            );
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+
+            // Export the key in raw format
+            const exportedKey = await crypto.subtle.exportKey("raw", key);
+
+            // Convert key and IV to hexadecimal strings
+            const keyHex = Array.from(new Uint8Array(exportedKey))
+                .map(byte => byte.toString(16).padStart(2, '0'))
+                .join('');
+            const ivHex = Array.from(iv)
+                .map(byte => byte.toString(16).padStart(2, '0'))
+                .join('');
+
+            const encrypted = await crypto.subtle.encrypt(
+                { name: "AES-GCM", iv },
+                key,
+                arrayBuffer
+            );
+
+            // Convert encrypted data to a Blob
+            const encryptedBlob = new Blob([encrypted], { type: file.type });
+            const encryptedUrl = URL.createObjectURL(encryptedBlob);
+
+            // Convert encrypted data to base64 for sending to the server
+            const encryptedData = await blobToBase64(encryptedBlob);
+
+            return { encryptedUrl, key: keyHex, iv: ivHex, encryptedData };
+        }
+
+        // Function to convert Blob to base64
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result.split(',')[1]); // Extract base64 data
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        // Function to toggle visibility of key/IV
+        function toggleVisibility(id) {
+            const input = document.getElementById(id);
+            if (input.type === "password") {
+                input.type = "text";
+            } else {
+                input.type = "password";
+            }
+        }
+
+        // Function to redirect to the decryption page
+        function redirectToDecryption() {
+            window.location.href = "decryption.html";
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AES-256 Encryption and Decryption</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <style>
+    /* Base Styles */
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      animation: gradientBG 10s ease infinite;
+      overflow: hidden;
+      color: #fff;
+      transition: background-color 0.5s, color 0.5s;
+    }
+
+    body.light-theme {
+      background: linear-gradient(135deg, #f4f4f9, #e0e0e0);
+      color: #333;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Particle Background */
+    #particles-js {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    /* Container Styling */
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 600px;
+      animation: fadeIn 1s ease-in-out;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      z-index: 1;
+      transition: background-color 0.5s, border-color 0.5s;
+    }
+
+    .light-theme .container {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Heading Styling */
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 2.5rem;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      animation: slideIn 1s ease-in-out;
+    }
+
+    .light-theme h1 {
+      color: #333;
+      text-shadow: none;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-50px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Input and Textarea Styling */
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .light-theme label {
+      color: #333;
+    }
+
+    textarea,
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      font-size: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      transition: border-color 0.3s, box-shadow 0.3s, background-color 0.5s, color 0.5s;
+    }
+
+    .light-theme textarea,
+    .light-theme input {
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    textarea:focus,
+    input:focus {
+      border-color: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+      outline: none;
+    }
+
+    .light-theme textarea:focus,
+    .light-theme input:focus {
+      border-color: rgba(0, 0, 0, 0.3);
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Button Styling */
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      transition: background-color 0.3s, transform 0.2s;
+      margin-bottom: 10px;
+    }
+
+    .light-theme button {
+      background: rgba(0, 0, 0, 0.1);
+      color: #333;
+    }
+
+    button:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.02);
+    }
+
+    .light-theme button:hover {
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    /* Results Styling */
+    .results {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      animation: slideIn 0.5s ease-in-out;
+    }
+
+    .light-theme .results {
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .results p {
+      margin: 10px 0;
+      color: #fff;
+    }
+
+    .light-theme .results p {
+      color: #333;
+    }
+
+    /* Theme Toggle Styling */
+    #theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: background-color 0.3s, transform 0.2s;
+      z-index: 2;
+    }
+
+    .light-theme #theme-toggle {
+      background: rgba(0, 0, 0, 0.1);
+      color: #333;
+    }
+
+    #theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(180deg);
+    }
+
+    .light-theme #theme-toggle:hover {
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      .container {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <!-- Particle Background -->
+  <div id="particles-js"></div>
+
+  <!-- Theme Toggle -->
+  <button id="theme-toggle" title="Toggle Theme">🌓</button>
+
+  <!-- Main Container -->
+  <div class="container">
+    <h1>AES-256 Encryption and Decryption</h1>
+
+    <label for="key">Enter Secret Key (32 characters):</label>
+    <input type="text" id="key" placeholder="Enter a 32-character secret key" maxlength="32">
+
+    <label for="plaintext">Enter Text to Encrypt:</label>
+    <textarea id="plaintext" rows="4" placeholder="Enter text to encrypt"></textarea>
+    <button onclick="encryptText()">Encrypt</button>
+
+    <label for="ciphertext">Enter Text to Decrypt:</label>
+    <textarea id="ciphertext" rows="4" placeholder="Enter text to decrypt"></textarea>
+    <button onclick="decryptText()">Decrypt</button>
+
+    <div class="results">
+      <h2>Results:</h2>
+      <p><strong>Encrypted Text:</strong> <span id="encryptedResult"></span></p>
+      <p><strong>Decrypted Text:</strong> <span id="decryptedResult"></span></p>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Particles.js
+    particlesJS.load('particles-js', 'particles.json', function() {
+      console.log('Particles.js loaded!');
+    });
+
+    // Theme Toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+
+    themeToggle.addEventListener('click', () => {
+      body.classList.toggle('light-theme');
+      body.classList.toggle('dark-theme');
+      themeToggle.textContent = body.classList.contains('dark-theme') ? '🌓' : '🌞';
+    });
+
+    // Encryption and Decryption Functions
+    function encryptText() {
+      const key = document.getElementById('key').value;
+      const plaintext = document.getElementById('plaintext').value;
+
+      if (key.length !== 32) {
+        alert("Secret key must be 32 characters long!");
+        return;
+      }
+
+      const encrypted = CryptoJS.AES.encrypt(plaintext, key).toString();
+      document.getElementById('encryptedResult').textContent = encrypted;
+    }
+
+    function decryptText() {
+      const key = document.getElementById('key').value;
+      const ciphertext = document.getElementById('ciphertext').value;
+
+      if (key.length !== 32) {
+        alert("Secret key must be 32 characters long!");
+        return;
+      }
+
+      try {
+        const decrypted = CryptoJS.AES.decrypt(ciphertext, key).toString(CryptoJS.enc.Utf8);
+        if (!decrypted) {
+          throw new Error("Decryption failed. Invalid key or ciphertext.");
+        }
+        document.getElementById('decryptedResult').textContent = decrypted;
+      } catch (error) {
+        alert("Decryption failed. Please check your key and ciphertext.");
+      }
+    }
+  </script>
+</body>
+</html>
